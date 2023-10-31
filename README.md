@@ -1,1 +1,1 @@
-Projet de Jules Gaël Nathan et Simson
+Projet de Jules Gaël Nathan et Simpson
