@@ -30,6 +30,8 @@ def get_data():
     del df['ra']
     del df['decstr']
     del df['dec']
+
+    df = df.dropna(how='all')
     
     df = df.rename(columns={'sy_snum': 'nb_etoiles', 'sy_pnum': 'nb_planetes', 
                             'pl_orbper': 'periode_orbitale_(jours)', 'pl_orbsmax':'demi_grand_axe_(ua)',

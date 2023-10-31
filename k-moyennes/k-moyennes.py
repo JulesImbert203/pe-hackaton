@@ -7,26 +7,23 @@ import pandas as pd
 import numpy as np
 import getData
 
-DONNEES = getData.get_data()
+DONNEES = getData.get_data().dropna()
 NOMS_COLONNES = noms_colonnes_liste = DONNEES.columns.tolist()
 
 # FONCTIONS 
 
 def norme(planete) :
     '''
-    [IN] : pandas series d'une ligne dont les colonnes sont celles de donnees 
+    [IN] : tableau numpy obtenu avec une pandas series d'une ligne dont les colonnes sont celles de donnees 
     [OUT] : reel positif
     '''
-    tableau = planete.to_numpy()
-    tableau = np.square(tableau)
-    somme = np.nansum(tableau)
+    planete = np.square(planete)
+    somme = np.nansum(planete)
     return np.sqrt(somme)
     
 
 def distance(planete1, planete2):
-    tab1 = planete1.to_numpy()
-    tab2 = planete2.to_numpy()
-    tab = np.square(tab1 - tab2)
+    tab = np.square(planete1 - planete2)
     return np.sqrt(np.nansum(tab))
 
 
@@ -34,17 +31,11 @@ def plus_proche(nouvelle_planete, planetes) :
     '''
     Renvoie l'indice dans le tableau planetes de la planete la plus proche
     de nouvelle_planete
+    [IN] : (tableau_numpy, liste de tableaux numpy)
+    [OUT] : int
     '''
-    k = len(planetes)
-    distance_a_nouv_pl = lambda pl: distance(pl, nouvelle_planete)
-    distance_a_nouv_pl = np.vectorize(distance_a_nouv_pl)
-    distances = distance_a_nouv_pl(planetes)
-    mini = np.inf
-    id_mini
-    for i in range(0, k) :
-        if distances[i] < mini :
-            mini = distances[i] 
-            id_mini = i
+    distances = [distance(nouvelle_planete, planete) for planete in planetes]
+    id_mini = np.argmin(distances)
     return id_mini
 
 def moyenne(planetes):
@@ -56,7 +47,7 @@ def moyenne(planetes):
     tableau_somme = np.sum(planetes)
     tableau_normes = np.array([norme(planete) for planete in planetes])
     total = np.sum(tableau_normes)
-    return tableau_somme / norme
+    return tableau_somme / total
 
 
 def k_moyennes(df, k, temps_max=1000) :
@@ -65,7 +56,7 @@ def k_moyennes(df, k, temps_max=1000) :
     des k-moyennes. 
     '''
     # Initialisation
-    planetes_k = [df.iloc[i] for i in range(0, k)]
+    planetes_k = [df.iloc[i].to_numpy() for i in range(0, k)]
     flag_cvg = False
     tour = 0
     long = len(df)
@@ -74,18 +65,16 @@ def k_moyennes(df, k, temps_max=1000) :
     while (not flag_cvg) and tour < temps_max : 
         tour += 1
         # Création de la partition de Voronoi
-        groupes = [[] for i in range(0, k)]
+        groupes = [[[],[]] for i in range(0, k)]
         for i in range(0, long) :
-            id_groupe = plus_proche(df.iloc[i], planetes_k)
-            groupes[id_groupe].append(df.iloc[i])
+            id_groupe = plus_proche(df.iloc[i].to_numpy(), planetes_k)
+            groupes[id_groupe][1].append(df.iloc[i].to_numpy())
+            groupes[id_groupe][0].append(i)
         # Mise a jour de la moyenne de chaque cluster
         for i in range(0, k) : 
-            planetes_k[i] = moyenne(groupes[i])
-    return groupes
-
-# +
-# TESTS
-# -
+            planetes_k[i] = moyenne(groupes[i][1])
+        ids = [groupes[j][0] for j in range(0, k)]
+    return ids
 
 
 
