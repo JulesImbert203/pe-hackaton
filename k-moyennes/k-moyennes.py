@@ -1,8 +1,16 @@
-import pandas as pd
-import numpy as np
-
 """ Ce module propose de regrouper les différentes planètes en utilisant
 l'algorithme d'apprentissage non supervisé des k moyennes """
+
+# IMPORTATIONS
+
+import pandas as pd
+import numpy as np
+import getData
+
+DONNEES = getData.get_data()
+NOMS_COLONNES = noms_colonnes_liste = DONNEES.columns.tolist()
+
+# FONCTIONS 
 
 def norme(planete) :
     pass
